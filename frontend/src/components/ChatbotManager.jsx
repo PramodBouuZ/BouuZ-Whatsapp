@@ -152,18 +152,10 @@ export default function ChatbotManager({ user }) {
                     <p className="text-sm font-medium mb-1">System Prompt:</p>
                     <p className="text-sm text-muted-foreground line-clamp-3">{bot.system_prompt}</p>
                   </div>
-                  {bot.keywords && bot.keywords.length > 0 && (
-                    <div>
-                      <p className="text-sm font-medium mb-1">Keywords:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {bot.keywords.map((keyword, idx) => (
-                          <span key={idx} className="text-xs px-2 py-1 bg-muted rounded">
-                            {keyword}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  <div>
+                    <p className="text-sm font-medium mb-1">Keywords:</p>
+                    <p className="text-xs text-muted-foreground">{bot.keywords ? bot.keywords.join(', ') : 'None'}</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
