@@ -1,0 +1,206 @@
+{
+  "design_system": {
+    "identity": {
+      "name": "BantConfirm WhatsApp Platform",
+      "archetype": "Swiss & High-Contrast",
+      "vibe": "Trustworthy, Enterprise-Grade, Clear, Efficient",
+      "principles": [
+        "Fusion over Imitation: Mix Swiss precision with SaaS utility.",
+        "Content is King: Data density without clutter.",
+        "Contrast: High contrast for readability and authority.",
+        "Zoom In: Focus on the conversation and the metric."
+      ]
+    },
+    "typography": {
+      "font_family": {
+        "headings": "Manrope, sans-serif",
+        "body": "Inter, sans-serif",
+        "mono": "JetBrains Mono, monospace"
+      },
+      "scale": {
+        "h1": "text-4xl md:text-6xl font-bold tracking-tight",
+        "h2": "text-3xl md:text-4xl font-semibold tracking-tight",
+        "h3": "text-2xl font-semibold",
+        "body_lg": "text-lg leading-relaxed",
+        "body_base": "text-base leading-relaxed",
+        "caption": "text-sm text-muted-foreground"
+      },
+      "imports": [
+        "@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;700;800&family=JetBrains+Mono&display=swap');"
+      ]
+    },
+    "colors": {
+      "palette": {
+        "primary": {
+          "DEFAULT": "#0B5ED7",
+          "foreground": "#FFFFFF"
+        },
+        "secondary": {
+          "DEFAULT": "#F1F5F9",
+          "foreground": "#0F172A"
+        },
+        "accent": {
+          "DEFAULT": "#FFC107",
+          "foreground": "#0F172A"
+        },
+        "background": "#FFFFFF",
+        "foreground": "#0F172A",
+        "muted": {
+          "DEFAULT": "#F8FAFC",
+          "foreground": "#64748B"
+        },
+        "border": "#E2E8F0",
+        "input": "#E2E8F0",
+        "ring": "#0B5ED7"
+      },
+      "usage": {
+        "primary_action": "bg-primary text-primary-foreground hover:bg-primary/90",
+        "secondary_action": "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        "accent_highlight": "text-accent-foreground bg-accent",
+        "success": "text-green-600 bg-green-50 border-green-200",
+        "warning": "text-yellow-600 bg-yellow-50 border-yellow-200",
+        "error": "text-red-600 bg-red-50 border-red-200"
+      }
+    },
+    "layout": {
+      "spacing": {
+        "container_padding": "p-6 md:p-8 lg:p-12",
+        "section_gap": "gap-8 md:gap-12",
+        "component_gap": "gap-4"
+      },
+      "grids": {
+        "dashboard_main": "grid grid-cols-1 md:grid-cols-12 gap-6",
+        "bento_features": "grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[minmax(200px,auto)]",
+        "card_grid": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+      },
+      "containers": {
+        "max_width": "max-w-7xl mx-auto",
+        "dashboard_wrapper": "flex h-screen overflow-hidden bg-muted/20"
+      }
+    },
+    "components": {
+      "buttons": {
+        "default": "h-10 px-4 py-2 rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+        "pill": "rounded-full",
+        "ghost": "hover:bg-accent hover:text-accent-foreground"
+      },
+      "cards": {
+        "base": "rounded-xl border bg-card text-card-foreground shadow-sm",
+        "hover_effect": "hover:shadow-md transition-shadow duration-200",
+        "glass": "bg-white/70 backdrop-blur-xl border-white/20 shadow-sm"
+      },
+      "inputs": {
+        "base": "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+      }
+    },
+    "visual_enhancers": {
+      "shadows": {
+        "soft": "shadow-[0_2px_8px_rgba(0,0,0,0.04)]",
+        "medium": "shadow-[0_8px_24px_rgba(0,0,0,0.08)]",
+        "glow": "shadow-[0_0_16px_rgba(11,94,215,0.15)]"
+      },
+      "borders": {
+        "subtle": "border border-border",
+        "active": "border-primary"
+      },
+      "radius": {
+        "default": "rounded-lg",
+        "large": "rounded-xl",
+        "full": "rounded-full"
+      }
+    },
+    "motion": {
+      "transitions": "transition-all duration-200 ease-in-out",
+      "hover_lift": "hover:-translate-y-1 hover:shadow-lg",
+      "fade_in": "animate-in fade-in duration-500",
+      "slide_up": "animate-in slide-in-from-bottom-4 duration-500"
+    }
+  },
+  "assets": {
+    "icons": {
+      "library": "lucide-react",
+      "style": "stroke-width={1.5} className='w-5 h-5'"
+    },
+    "images": {
+      "hero_team": {
+        "url": "https://images.unsplash.com/photo-1758691736975-9f7f643d178e?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Diverse business team collaborating in modern office",
+        "category": "hero"
+      },
+      "agent_support": {
+        "url": "https://images.unsplash.com/photo-1766066014237-00645c74e9c6?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Smiling customer support agent with headset",
+        "category": "feature"
+      },
+      "tech_abstract": {
+        "url": "https://images.unsplash.com/photo-1727434032773-af3cd98375ba?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Abstract blue technology network data connection",
+        "category": "background"
+      },
+      "ai_robot": {
+        "url": "https://images.unsplash.com/photo-1685391896546-9abaf50bfc99?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "AI Robot assistant concept",
+        "category": "feature"
+      },
+      "office_meeting": {
+        "url": "https://images.unsplash.com/photo-1758873268663-5a362616b5a7?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Colleagues standing together in creative office",
+        "category": "about"
+      }
+    }
+  },
+  "implementation_instructions": {
+    "file_structure": {
+      "components": "/app/frontend/src/components/ui",
+      "pages": "/app/frontend/src/pages",
+      "layouts": "/app/frontend/src/layouts"
+    },
+    "css_variables": {
+      "root": {
+        "--background": "0 0% 100%",
+        "--foreground": "222.2 84% 4.9%",
+        "--card": "0 0% 100%",
+        "--card-foreground": "222.2 84% 4.9%",
+        "--popover": "0 0% 100%",
+        "--popover-foreground": "222.2 84% 4.9%",
+        "--primary": "216 91% 44%",
+        "--primary-foreground": "210 40% 98%",
+        "--secondary": "210 40% 96.1%",
+        "--secondary-foreground": "222.2 47.4% 11.2%",
+        "--muted": "210 40% 96.1%",
+        "--muted-foreground": "215.4 16.3% 46.9%",
+        "--accent": "45 100% 51%",
+        "--accent-foreground": "222.2 47.4% 11.2%",
+        "--destructive": "0 84.2% 60.2%",
+        "--destructive-foreground": "210 40% 98%",
+        "--border": "214.3 31.8% 91.4%",
+        "--input": "214.3 31.8% 91.4%",
+        "--ring": "216 91% 44%",
+        "--radius": "0.5rem"
+      }
+    },
+    "critical_rules": [
+      "Use .jsx extension for all React components.",
+      "Do NOT use TypeScript interfaces or types.",
+      "Ensure all interactive elements have a 'data-testid' attribute (kebab-case).",
+      "Do NOT use transparent backgrounds for dropdowns or headers without blur/scrim.",
+      "Use 'lucide-react' for all icons.",
+      "Use 'recharts' for all charts.",
+      "Follow the 'Swiss & High-Contrast' archetype: Clean lines, bold typography, high readability."
+    ]
+  },
+  "universal_guidelines": {
+    "general": [
+      "Avoid generic centered layouts; use asymmetry and grids.",
+      "Use 2-3x more spacing than typical designs (p-8, p-12).",
+      "Add micro-interactions to all buttons and cards (hover lift, scale).",
+      "Use 'sonner' for toast notifications.",
+      "Never use AI emojis (🤖, 🚀) as icons."
+    ],
+    "accessibility": [
+      "Ensure text contrast ratio is at least 4.5:1.",
+      "Focus states must be clearly visible (ring-2).",
+      "Interactive elements must be large enough for touch targets."
+    ]
+  }
+}
