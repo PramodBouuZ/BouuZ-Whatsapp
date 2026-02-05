@@ -273,23 +273,59 @@ export default function UserManagement({ user }) {
             <DialogTitle>Manage Permissions: {selectedUser?.name}</DialogTitle>
           </DialogHeader>
           <div className="max-h-[500px] overflow-y-auto space-y-4">
-            {RESOURCES.map(resource => (
-              <Card key={resource.id}>
+            {RESOURCES.map((resource, ridx) => (
+              <Card key={ridx}>
                 <CardHeader>
                   <CardTitle className="text-base">{resource.label}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-2">Actions: {resource.actions.join(', ')}</p>
-                  <div className="flex flex-wrap gap-3">
-                    {resource.actions.length > 0 && resource.actions.map((action, idx) => (
-                      <label key={idx} className="flex items-center gap-2 cursor-pointer">
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground">Available actions for this resource:</p>
+                    <div className="flex flex-wrap gap-3">
+                      <label className="flex items-center gap-2 cursor-pointer">
                         <Checkbox
-                          checked={permissions[resource.id]?.includes(action) || false}
-                          onCheckedChange={() => togglePermission(resource.id, action)}
+                          checked={permissions[resource.id]?.includes('read') || false}
+                          onCheckedChange={() => togglePermission(resource.id, 'read')}
                         />
-                        <span className="text-sm capitalize">{action}</span>
+                        <span className="text-sm">Read</span>
                       </label>
-                    ))}
+                      {resource.actions.includes('create') && (
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <Checkbox
+                            checked={permissions[resource.id]?.includes('create') || false}
+                            onCheckedChange={() => togglePermission(resource.id, 'create')}
+                          />
+                          <span className="text-sm">Create</span>
+                        </label>
+                      )}
+                      {resource.actions.includes('update') && (
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <Checkbox
+                            checked={permissions[resource.id]?.includes('update') || false}
+                            onCheckedChange={() => togglePermission(resource.id, 'update')}
+                          />
+                          <span className="text-sm">Update</span>
+                        </label>
+                      )}
+                      {resource.actions.includes('delete') && (
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <Checkbox
+                            checked={permissions[resource.id]?.includes('delete') || false}
+                            onCheckedChange={() => togglePermission(resource.id, 'delete')}
+                          />
+                          <span className="text-sm">Delete</span>
+                        </label>
+                      )}
+                      {resource.actions.includes('send') && (
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <Checkbox
+                            checked={permissions[resource.id]?.includes('send') || false}
+                            onCheckedChange={() => togglePermission(resource.id, 'send')}
+                          />
+                          <span className="text-sm">Send</span>
+                        </label>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
