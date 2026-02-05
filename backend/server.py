@@ -12,7 +12,7 @@ import uuid
 from datetime import datetime, timezone, timedelta
 from passlib.context import CryptContext
 import jwt
-from emergentintegrations import OpenAI
+from emergentintegrations.llm.chat import LlmChat
 import json
 
 ROOT_DIR = Path(__file__).parent
