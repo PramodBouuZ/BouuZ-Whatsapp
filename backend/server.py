@@ -539,9 +539,23 @@ async def get_campaigns(current_user: dict = Depends(get_current_user)):
     return campaigns
 
 @api_router.post("/campaigns")
-async def create_campaign(name: str, message_template: str, target_contacts: List[str] = [], current_user: dict = Depends(get_current_user)):
+async def create_campaign(
+    name: str,
+    message_template: str,
+    template_id: Optional[str] = None,
+    target_contacts: List[str] = [],
+    current_user: dict = Depends(get_current_user)
+):
     if not current_user.get("tenant_id"):
         raise HTTPException(status_code=400, detail="Tenant ID required")
+    
+    if template_id:
+        template = await db.templates.find_one({"id": template_id, "tenant_id": current_user["tenant_id"]}, {"_id": 0})
+        if not template:
+            raise HTTPException(status_code=404, detail="Template not found")
+        
+        if template["status"] != "APPROVED":
+            raise HTTPException(status_code=400, detail="Only APPROVED templates can be used for campaigns. Please wait for Meta approval.")
     
     campaign = Campaign(
         tenant_id=current_user["tenant_id"],
@@ -553,6 +567,10 @@ async def create_campaign(name: str, message_template: str, target_contacts: Lis
     campaign_dict['created_at'] = campaign_dict['created_at'].isoformat()
     if campaign_dict.get('scheduled_at'):
         campaign_dict['scheduled_at'] = campaign_dict['scheduled_at'].isoformat()
+    
+    if template_id:
+        campaign_dict['template_id'] = template_id
+    
     await db.campaigns.insert_one(campaign_dict)
     return serialize_doc(campaign_dict)
 
