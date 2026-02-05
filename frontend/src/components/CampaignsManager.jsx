@@ -111,13 +111,13 @@ export default function CampaignsManager({ user }) {
               <div className="space-y-2">
                 <Label>Message Template</Label>
                 <Textarea
-                  placeholder="Hello {{name}}, we have exciting updates..."
+                  placeholder="Hello, we have exciting updates for you..."
                   value={formData.message_template}
                   onChange={(e) => setFormData({ ...formData, message_template: e.target.value })}
                   rows={6}
                   data-testid="campaign-message-input"
                 />
-                <p className="text-xs text-muted-foreground">Use {{name}} for contact name personalization</p>
+                <p className="text-xs text-muted-foreground">You can personalize messages for each contact</p>
               </div>
               <div className="p-3 bg-muted rounded-lg">
                 <p className="text-sm font-medium mb-1">Target Audience</p>
