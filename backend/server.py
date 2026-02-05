@@ -382,7 +382,7 @@ async def create_conversation(contact_phone: str, contact_name: str, current_use
     conv_dict['created_at'] = conv_dict['created_at'].isoformat()
     conv_dict['updated_at'] = conv_dict['updated_at'].isoformat()
     await db.conversations.insert_one(conv_dict)
-    return conv_dict
+    return serialize_doc(conv_dict)
 
 @api_router.get("/chatbots")
 async def get_chatbots(current_user: dict = Depends(get_current_user)):
