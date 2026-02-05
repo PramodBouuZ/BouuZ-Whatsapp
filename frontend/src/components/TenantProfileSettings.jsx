@@ -10,7 +10,7 @@ import { Building2, CheckCircle, AlertCircle, Globe, Mail, Phone, MapPin } from 
 import { toast } from 'sonner';
 import MetaAPISettings from './MetaAPISettings';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "";
 const API = `${BACKEND_URL}/api`;
 
 export default function TenantProfileSettings({ user }) {
