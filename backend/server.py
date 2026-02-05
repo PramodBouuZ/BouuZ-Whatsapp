@@ -475,7 +475,7 @@ async def get_meta_config(current_user: dict = Depends(get_current_user)):
 
 @api_router.post("/whatsapp/send")
 async def send_whatsapp_message(to: str, message: str, current_user: dict = Depends(get_current_user)):
-    \"\"\"Send WhatsApp message via Meta Cloud API\"\"\"
+    """Send WhatsApp message via Meta Cloud API"""
     if not current_user.get("tenant_id"):
         raise HTTPException(status_code=400, detail="Tenant ID required")
     
