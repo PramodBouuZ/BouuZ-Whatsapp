@@ -278,6 +278,7 @@ async def update_tenant_profile(
     tenant_id: str,
     name: Optional[str] = None,
     logo_url: Optional[str] = None,
+    logo_base64: Optional[str] = None,
     primary_color: Optional[str] = None,
     business_phone: Optional[str] = None,
     business_email: Optional[str] = None,
@@ -292,6 +293,7 @@ async def update_tenant_profile(
     update_data = {}
     if name: update_data["name"] = name
     if logo_url: update_data["logo_url"] = logo_url
+    if logo_base64: update_data["logo_base64"] = logo_base64
     if primary_color: update_data["primary_color"] = primary_color
     if business_phone: update_data["business_phone"] = business_phone
     if business_email: update_data["business_email"] = business_email
