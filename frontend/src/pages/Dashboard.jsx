@@ -10,6 +10,9 @@ import ChatbotManager from '@/components/ChatbotManager';
 import ContactsManager from '@/components/ContactsManager';
 import CampaignsManager from '@/components/CampaignsManager';
 import AnalyticsDashboard from '@/components/AnalyticsDashboard';
+import MetaAPISettings from '@/components/MetaAPISettings';
+import TemplateManager from '@/components/TemplateManager';
+import UserManagement from '@/components/UserManagement';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
