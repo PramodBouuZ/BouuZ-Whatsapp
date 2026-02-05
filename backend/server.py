@@ -405,7 +405,7 @@ async def create_chatbot(request: ChatbotRequest, current_user: dict = Depends(g
     chatbot_dict = chatbot.model_dump()
     chatbot_dict['created_at'] = chatbot_dict['created_at'].isoformat()
     await db.chatbots.insert_one(chatbot_dict)
-    return chatbot_dict
+    return serialize_doc(chatbot_dict)
 
 @api_router.get("/contacts")
 async def get_contacts(current_user: dict = Depends(get_current_user)):
