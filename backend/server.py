@@ -659,7 +659,7 @@ async def create_template(
         except Exception as e:
             logger.error(f"Failed to submit template to Meta: {str(e)}")
     
-    return template_dict
+    return serialize_doc(template_dict)
 
 # User & Permission Management
 @api_router.get("/users/tenant")
