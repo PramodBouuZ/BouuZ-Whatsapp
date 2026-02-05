@@ -340,10 +340,8 @@ async def send_message(conversation_id: str, request: MessageRequest, current_us
                     system_message=chatbot["system_prompt"]
                 )
                 
-                response = llm_client.send_message(
-                    message=request.content,
-                    model="gpt-5.2"
-                )
+                user_msg = UserMessage(text=request.content)
+                response = llm_client.send_message(user_message=user_msg)
                 ai_response = response
                 
                 ai_message = Message(
@@ -356,7 +354,7 @@ async def send_message(conversation_id: str, request: MessageRequest, current_us
                 await db.messages.insert_one(ai_dict)
             except Exception as e:
                 logger.error(f"AI response error: {str(e)}")
-                ai_response = f"AI temporarily unavailable"
+                ai_response = "AI temporarily unavailable"
     
     await db.conversations.update_one(
         {"id": conversation_id},
