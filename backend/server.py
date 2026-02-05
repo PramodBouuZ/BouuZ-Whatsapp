@@ -437,6 +437,293 @@ async def get_analytics(current_user: dict = Depends(get_current_user)):
         "total_campaigns": total_campaigns
     }
 
+# Meta WhatsApp Cloud API Integration
+@api_router.post("/meta/config")
+async def save_meta_config(phone_number_id: str, business_account_id: str, access_token: str, webhook_verify_token: str, current_user: dict = Depends(get_current_user)):
+    if not current_user.get("tenant_id") or current_user["role"] not in ["tenant_admin", "super_admin"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    config = MetaAPIConfig(
+        tenant_id=current_user["tenant_id"],
+        phone_number_id=phone_number_id,
+        business_account_id=business_account_id,
+        access_token=access_token,
+        webhook_verify_token=webhook_verify_token
+    )
+    config_dict = config.model_dump()
+    config_dict['created_at'] = config_dict['created_at'].isoformat()
+    
+    await db.meta_configs.update_one(
+        {"tenant_id": current_user["tenant_id"]},
+        {"$set": config_dict},
+        upsert=True
+    )
+    
+    config_dict.pop("access_token")
+    return config_dict
+
+@api_router.get("/meta/config")
+async def get_meta_config(current_user: dict = Depends(get_current_user)):
+    if not current_user.get("tenant_id"):
+        raise HTTPException(status_code=400, detail="Tenant ID required")
+    
+    config = await db.meta_configs.find_one({"tenant_id": current_user["tenant_id"]}, {"_id": 0, "access_token": 0})
+    if not config:
+        return {"configured": False}
+    
+    return {"configured": True, **config}
+
+@api_router.post("/whatsapp/send")
+async def send_whatsapp_message(to: str, message: str, current_user: dict = Depends(get_current_user)):
+    \"\"\"Send WhatsApp message via Meta Cloud API\"\"\"
+    if not current_user.get("tenant_id"):
+        raise HTTPException(status_code=400, detail="Tenant ID required")
+    
+    config = await db.meta_configs.find_one({"tenant_id": current_user["tenant_id"]}, {"_id": 0})
+    if not config:
+        raise HTTPException(status_code=400, detail="WhatsApp API not configured")
+    
+    try:
+        url = f"https://graph.facebook.com/v18.0/{config['phone_number_id']}/messages"
+        headers = {
+            "Authorization": f"Bearer {config['access_token']}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "messaging_product": "whatsapp",
+            "to": to,
+            "type": "text",
+            "text": {"body": message}
+        }
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, headers=headers, json=payload, timeout=30.0)
+            response.raise_for_status()
+            return response.json()
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to send message: {str(e)}")
+
+@api_router.post("/whatsapp/webhook")
+async def whatsapp_webhook(request: dict):
+    \"\"\"Receive WhatsApp webhooks from Meta\"\"\"
+    try:
+        if request.get("object") == "whatsapp_business_account":
+            entries = request.get("entry", [])
+            for entry in entries:
+                changes = entry.get("changes", [])
+                for change in changes:
+                    value = change.get("value", {})
+                    messages = value.get("messages", [])
+                    
+                    for message in messages:
+                        phone_number = message.get("from")
+                        message_type = message.get("type")
+                        message_body = ""
+                        
+                        if message_type == "text":
+                            message_body = message.get("text", {}).get("body", "")
+                        
+                        await db.webhook_messages.insert_one({
+                            "phone_number": phone_number,
+                            "message_type": message_type,
+                            "message_body": message_body,
+                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                            "raw_data": message
+                        })
+        
+        return {"status": "received"}
+    
+    except Exception as e:
+        logger.error(f"Webhook processing error: {str(e)}")
+        return {"status": "error"}
+
+@api_router.get("/whatsapp/webhook")
+async def verify_webhook(mode: str = None, token: str = None, challenge: str = None):
+    \"\"\"Verify webhook for Meta\"\"\"
+    if mode == "subscribe" and token:
+        configs = await db.meta_configs.find({}, {"_id": 0}).to_list(100)
+        for config in configs:
+            if token == config.get("webhook_verify_token"):
+                return int(challenge) if challenge else {"status": "verified"}
+    
+    raise HTTPException(status_code=403, detail="Verification failed")
+
+# Message Templates Management
+@api_router.get("/templates")
+async def get_templates(current_user: dict = Depends(get_current_user)):
+    if not current_user.get("tenant_id"):
+        raise HTTPException(status_code=400, detail="Tenant ID required")
+    
+    templates = await db.templates.find({"tenant_id": current_user["tenant_id"]}, {"_id": 0}).to_list(1000)
+    return templates
+
+@api_router.post("/templates")
+async def create_template(
+    name: str,
+    category: str,
+    language: str,
+    body_text: str,
+    header_type: Optional[str] = None,
+    header_content: Optional[str] = None,
+    footer_text: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    if not current_user.get("tenant_id"):
+        raise HTTPException(status_code=400, detail="Tenant ID required")
+    
+    if current_user["role"] not in ["tenant_admin", "manager"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    template = MessageTemplate(
+        tenant_id=current_user["tenant_id"],
+        name=name,
+        category=category,
+        language=language,
+        body_text=body_text,
+        header_type=header_type,
+        header_content=header_content,
+        footer_text=footer_text
+    )
+    
+    template_dict = template.model_dump()
+    template_dict['created_at'] = template_dict['created_at'].isoformat()
+    await db.templates.insert_one(template_dict)
+    
+    config = await db.meta_configs.find_one({"tenant_id": current_user["tenant_id"]}, {"_id": 0})
+    if config:
+        try:
+            url = f"https://graph.facebook.com/v18.0/{config['business_account_id']}/message_templates"
+            headers = {
+                "Authorization": f"Bearer {config['access_token']}",
+                "Content-Type": "application/json"
+            }
+            
+            components = [{"type": "BODY", "text": body_text}]
+            if header_type and header_content:
+                components.insert(0, {"type": "HEADER", "format": header_type, "text": header_content})
+            if footer_text:
+                components.append({"type": "FOOTER", "text": footer_text})
+            
+            payload = {
+                "name": name.lower().replace(" ", "_"),
+                "language": language,
+                "category": category,
+                "components": components
+            }
+            
+            async with httpx.AsyncClient() as client:
+                response = await client.post(url, headers=headers, json=payload, timeout=30.0)
+                if response.status_code == 200:
+                    result = response.json()
+                    await db.templates.update_one(
+                        {"id": template.id},
+                        {"$set": {"meta_template_id": result.get("id"), "status": "PENDING"}}
+                    )
+        
+        except Exception as e:
+            logger.error(f"Failed to submit template to Meta: {str(e)}")
+    
+    return template_dict
+
+# User & Permission Management
+@api_router.get("/users/tenant")
+async def get_tenant_users(current_user: dict = Depends(get_current_user)):
+    if not current_user.get("tenant_id"):
+        raise HTTPException(status_code=400, detail="Tenant ID required")
+    
+    if current_user["role"] not in ["tenant_admin", "manager"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    users = await db.users.find({"tenant_id": current_user["tenant_id"]}, {"_id": 0, "password_hash": 0}).to_list(1000)
+    return users
+
+@api_router.post("/users/invite")
+async def invite_user(invite: InviteUser, current_user: dict = Depends(get_current_user)):
+    if not current_user.get("tenant_id") or current_user["role"] != "tenant_admin":
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    existing = await db.users.find_one({"email": invite.email})
+    if existing:
+        raise HTTPException(status_code=400, detail="User already exists")
+    
+    temp_password = str(uuid.uuid4())[:8]
+    password_hash = pwd_context.hash(temp_password)
+    
+    user = User(
+        email=invite.email,
+        name=invite.name,
+        tenant_id=current_user["tenant_id"],
+        role=invite.role,
+        password_hash=password_hash
+    )
+    
+    user_dict = user.model_dump()
+    user_dict['created_at'] = user_dict['created_at'].isoformat()
+    await db.users.insert_one(user_dict)
+    
+    permissions = invite.permissions if invite.permissions else get_default_permissions(invite.role)
+    user_perm = UserPermission(
+        user_id=user.id,
+        tenant_id=current_user["tenant_id"],
+        permissions=permissions
+    )
+    perm_dict = user_perm.model_dump()
+    perm_dict['created_at'] = perm_dict['created_at'].isoformat()
+    await db.user_permissions.insert_one(perm_dict)
+    
+    return {
+        "user": {"id": user.id, "email": user.email, "name": user.name, "role": user.role},
+        "temporary_password": temp_password,
+        "message": "User invited successfully. Share the temporary password with them."
+    }
+
+@api_router.get("/users/{user_id}/permissions")
+async def get_user_permissions(user_id: str, current_user: dict = Depends(get_current_user)):
+    if current_user["role"] not in ["tenant_admin", "super_admin"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    perms = await db.user_permissions.find_one({"user_id": user_id}, {"_id": 0})
+    if not perms:
+        user = await db.users.find_one({"id": user_id}, {"_id": 0})
+        if user:
+            return {"permissions": get_default_permissions(user["role"])}
+    
+    return perms or {"permissions": []}
+
+@api_router.put("/users/{user_id}/permissions")
+async def update_user_permissions(user_id: str, permissions: List[Permission], current_user: dict = Depends(get_current_user)):
+    if current_user["role"] != "tenant_admin" or not current_user.get("tenant_id"):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    user = await db.users.find_one({"id": user_id, "tenant_id": current_user["tenant_id"]}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    await db.user_permissions.update_one(
+        {"user_id": user_id, "tenant_id": current_user["tenant_id"]},
+        {"$set": {"permissions": [p.model_dump() for p in permissions]}},
+        upsert=True
+    )
+    
+    return {"message": "Permissions updated successfully"}
+
+@api_router.delete("/users/{user_id}")
+async def delete_user(user_id: str, current_user: dict = Depends(get_current_user)):
+    if current_user["role"] != "tenant_admin" or not current_user.get("tenant_id"):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    if user_id == current_user["id"]:
+        raise HTTPException(status_code=400, detail="Cannot delete yourself")
+    
+    result = await db.users.delete_one({"id": user_id, "tenant_id": current_user["tenant_id"]})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    await db.user_permissions.delete_one({"user_id": user_id})
+    
+    return {"message": "User deleted successfully"}
+
 @api_router.get("/")
 async def root():
     return {"message": "BantConfirm WhatsApp Platform API", "version": "1.0.0"}
