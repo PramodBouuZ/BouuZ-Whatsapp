@@ -47,7 +47,10 @@ export default function Dashboard() {
     { id: 'chatbots', label: 'AI Chatbots', icon: Bot, roles: ['tenant_admin', 'manager'] },
     { id: 'contacts', label: 'Contacts', icon: Users, roles: ['tenant_admin', 'manager'] },
     { id: 'campaigns', label: 'Campaigns', icon: Send, roles: ['tenant_admin', 'manager'] },
+    { id: 'templates', label: 'Templates', icon: Send, roles: ['tenant_admin', 'manager'] },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, roles: ['tenant_admin', 'manager'] },
+    { id: 'users', label: 'Users', icon: Users, roles: ['tenant_admin'] },
+    { id: 'settings', label: 'Settings', icon: Settings, roles: ['tenant_admin'] },
   ];
 
   const filteredMenuItems = menuItems.filter(item => 
