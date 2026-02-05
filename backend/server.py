@@ -341,7 +341,7 @@ async def send_message(conversation_id: str, request: MessageRequest, current_us
                 )
                 
                 user_msg = UserMessage(text=request.content)
-                response = llm_client.send_message(user_message=user_msg)
+                response = await llm_client.send_message(user_message=user_msg)
                 ai_response = response
                 
                 ai_message = Message(
