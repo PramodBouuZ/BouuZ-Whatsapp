@@ -273,6 +273,37 @@ async def get_tenant(tenant_id: str, current_user: dict = Depends(get_current_us
         raise HTTPException(status_code=404, detail="Tenant not found")
     return tenant
 
+@api_router.put("/tenants/{tenant_id}/profile")
+async def update_tenant_profile(
+    tenant_id: str,
+    name: Optional[str] = None,
+    logo_url: Optional[str] = None,
+    primary_color: Optional[str] = None,
+    business_phone: Optional[str] = None,
+    business_email: Optional[str] = None,
+    business_address: Optional[str] = None,
+    business_website: Optional[str] = None,
+    industry: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    if current_user["role"] != "tenant_admin" or current_user.get("tenant_id") != tenant_id:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    update_data = {}
+    if name: update_data["name"] = name
+    if logo_url: update_data["logo_url"] = logo_url
+    if primary_color: update_data["primary_color"] = primary_color
+    if business_phone: update_data["business_phone"] = business_phone
+    if business_email: update_data["business_email"] = business_email
+    if business_address: update_data["business_address"] = business_address
+    if business_website: update_data["business_website"] = business_website
+    if industry: update_data["industry"] = industry
+    
+    if update_data:
+        await db.tenants.update_one({"id": tenant_id}, {"$set": update_data})
+    
+    return {"message": "Tenant profile updated successfully"}
+
 @api_router.get("/whatsapp/accounts")
 async def get_whatsapp_accounts(current_user: dict = Depends(get_current_user)):
     query = {}
