@@ -61,17 +61,15 @@ export default function CampaignsManager({ user }) {
       const token = localStorage.getItem('token');
       const contactIds = contacts.map(c => c.id);
       
+      const params = new URLSearchParams();
+      params.append('name', formData.name);
+      params.append('message_template', formData.message_template);
+      contactIds.forEach(id => params.append('target_contacts', id));
+      
       await axios.post(
-        `${API}/campaigns`,
+        `${API}/campaigns?${params.toString()}`,
         null,
-        {
-          params: {
-            name: formData.name,
-            message_template: formData.message_template,
-            target_contacts: contactIds
-          },
-          headers: { Authorization: `Bearer ${token}` }
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       
       toast.success('Campaign created successfully');
