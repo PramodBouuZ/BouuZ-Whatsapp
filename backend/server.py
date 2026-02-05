@@ -72,7 +72,7 @@ SECRET_KEY = os.environ.get("JWT_SECRET", "your-secret-key-change-in-production"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 
-EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY", "sk-emergent-5F41fB7D42d0d17Ae9")
+EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY")
 
 openai_client = None
 

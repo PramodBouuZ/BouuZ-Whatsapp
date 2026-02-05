@@ -62,9 +62,11 @@ def serialize_doc(doc):
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-mongo_url = os.environ['MONGO_URL']
+# Use environ.get with defaults to prevent import-time crashes during Vercel build/verification
+mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+db_name = os.environ.get('DB_NAME', 'test_db')
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+db = client[db_name]
 
 app = FastAPI(title="BantConfirm WhatsApp Platform API")
 api_router = APIRouter(prefix="/api")
@@ -72,11 +74,11 @@ api_router = APIRouter(prefix="/api")
 security = HTTPBearer()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-SECRET_KEY = os.environ.get("JWT_SECRET", "your-secret-key-change-in-production")
+SECRET_KEY = os.environ.get("JWT_SECRET", "dummy-secret-key-for-build-phase")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 
-EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY", "sk-emergent-5F41fB7D42d0d17Ae9")
+EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY")
 
 openai_client = None
 
