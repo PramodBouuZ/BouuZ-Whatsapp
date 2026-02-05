@@ -80,6 +80,12 @@ class Tenant(BaseModel):
     name: str
     logo_url: Optional[str] = None
     primary_color: str = "#0B5ED7"
+    business_phone: Optional[str] = None
+    business_email: Optional[EmailStr] = None
+    business_address: Optional[str] = None
+    business_website: Optional[str] = None
+    industry: Optional[str] = None
+    meta_verified: bool = False
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     status: str = "active"
 
