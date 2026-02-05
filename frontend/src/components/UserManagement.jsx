@@ -273,26 +273,29 @@ export default function UserManagement({ user }) {
             <DialogTitle>Manage Permissions: {selectedUser?.name}</DialogTitle>
           </DialogHeader>
           <div className="max-h-[500px] overflow-y-auto space-y-4">
-            {RESOURCES.map(resource => (
-              <Card key={resource.id}>
-                <CardHeader>
-                  <CardTitle className="text-base">{resource.label}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-3">
-                    {resource.actions.map(action => (
-                      <label key={action} className="flex items-center gap-2 cursor-pointer">
-                        <Checkbox
-                          checked={permissions[resource.id]?.includes(action) || false}
-                          onCheckedChange={() => togglePermission(resource.id, action)}
-                        />
-                        <span className="text-sm capitalize">{action}</span>
-                      </label>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {RESOURCES.map(resource => {
+              const actions = resource.actions.join(', ');
+              return (
+                <Card key={resource.id}>
+                  <CardHeader>
+                    <CardTitle className="text-base">{resource.label}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-3">
+                      {resource.actions.map((action, idx) => (
+                        <label key={`${resource.id}-${action}-${idx}`} className="flex items-center gap-2 cursor-pointer">
+                          <Checkbox
+                            checked={permissions[resource.id]?.includes(action) || false}
+                            onCheckedChange={() => togglePermission(resource.id, action)}
+                          />
+                          <span className="text-sm capitalize">{action}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
           <Button onClick={savePermissions} className="w-full" data-testid="save-permissions-btn">
             Save Permissions
