@@ -540,7 +540,7 @@ async def whatsapp_webhook(request: dict):
 
 @api_router.get("/whatsapp/webhook")
 async def verify_webhook(mode: str = None, token: str = None, challenge: str = None):
-    \"\"\"Verify webhook for Meta\"\"\"
+    """Verify webhook for Meta"""
     if mode == "subscribe" and token:
         configs = await db.meta_configs.find({}, {"_id": 0}).to_list(100)
         for config in configs:
