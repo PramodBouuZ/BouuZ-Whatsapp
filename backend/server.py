@@ -448,7 +448,74 @@ async def get_contacts(current_user: dict = Depends(get_current_user)):
     contacts = await db.contacts.find({"tenant_id": current_user["tenant_id"]}, {"_id": 0}).to_list(1000)
     return contacts
 
-@api_router.post("/contacts")
+@api_router.post("/contacts/bulk-upload")
+async def bulk_upload_contacts(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
+    if not current_user.get("tenant_id"):
+        raise HTTPException(status_code=400, detail="Tenant ID required")
+    
+    try:
+        contents = await file.read()
+        
+        if file.filename.endswith('.csv'):
+            df = pd.read_csv(io.BytesIO(contents))
+        elif file.filename.endswith(('.xlsx', '.xls')):
+            df = pd.read_excel(io.BytesIO(contents))
+        else:
+            raise HTTPException(status_code=400, detail="File must be CSV or Excel format")
+        
+        required_columns = ['name', 'phone_number']
+        if not all(col in df.columns for col in required_columns):
+            raise HTTPException(status_code=400, detail=f"File must contain columns: {', '.join(required_columns)}")
+        
+        contacts_added = 0
+        contacts_skipped = 0
+        
+        for _, row in df.iterrows():
+            try:
+                existing = await db.contacts.find_one({
+                    "tenant_id": current_user["tenant_id"],
+                    "phone_number": str(row['phone_number'])
+                })
+                
+                if existing:
+                    contacts_skipped += 1
+                    continue
+                
+                contact = Contact(
+                    tenant_id=current_user["tenant_id"],
+                    phone_number=str(row['phone_number']),
+                    name=str(row['name']),
+                    email=str(row.get('email', '')) if pd.notna(row.get('email')) else None
+                )
+                contact_dict = contact.model_dump()
+                contact_dict['created_at'] = contact_dict['created_at'].isoformat()
+                await db.contacts.insert_one(contact_dict)
+                contacts_added += 1
+            
+            except Exception as e:
+                logger.error(f"Error adding contact: {str(e)}")
+                contacts_skipped += 1
+        
+        return {
+            "message": "Bulk upload completed",
+            "contacts_added": contacts_added,
+            "contacts_skipped": contacts_skipped,
+            "total_processed": len(df)
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+
+@api_router.get("/templates/approved")
+async def get_approved_templates(current_user: dict = Depends(get_current_user)):
+    if not current_user.get("tenant_id"):
+        raise HTTPException(status_code=400, detail="Tenant ID required")
+    
+    templates = await db.templates.find({
+        "tenant_id": current_user["tenant_id"],
+        "status": "APPROVED"
+    }, {"_id": 0}).to_list(1000)
+    return templates
 async def create_contact(phone_number: str, name: str, email: Optional[str] = None, current_user: dict = Depends(get_current_user)):
     if not current_user.get("tenant_id"):
         raise HTTPException(status_code=400, detail="Tenant ID required")
