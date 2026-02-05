@@ -506,7 +506,7 @@ async def send_whatsapp_message(to: str, message: str, current_user: dict = Depe
 
 @api_router.post("/whatsapp/webhook")
 async def whatsapp_webhook(request: dict):
-    \"\"\"Receive WhatsApp webhooks from Meta\"\"\"
+    """Receive WhatsApp webhooks from Meta"""
     try:
         if request.get("object") == "whatsapp_business_account":
             entries = request.get("entry", [])
