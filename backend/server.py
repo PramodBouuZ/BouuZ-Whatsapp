@@ -366,7 +366,7 @@ async def send_message(conversation_id: str, request: MessageRequest, current_us
         {"$set": {"updated_at": datetime.now(timezone.utc).isoformat()}}
     )
     
-    return {"user_message": user_dict, "ai_response": ai_response}
+    return serialize_doc({"user_message": user_dict, "ai_response": ai_response})
 
 @api_router.post("/conversations")
 async def create_conversation(contact_phone: str, contact_name: str, current_user: dict = Depends(get_current_user)):
