@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MessageSquare, Users, Send, Bot } from 'lucide-react';
@@ -15,11 +15,7 @@ export default function AnalyticsDashboard({ user }) {
     total_campaigns: 0
   });
 
-  useEffect(() => {
-    fetchAnalytics();
-  }, []);
-
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`${API}/analytics/overview`, {
@@ -29,7 +25,11 @@ export default function AnalyticsDashboard({ user }) {
     } catch (error) {
       toast.error('Failed to fetch analytics');
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, [fetchAnalytics]);
 
   const stats = [
     {

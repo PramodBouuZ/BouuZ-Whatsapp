@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,11 +27,7 @@ export default function TenantProfileSettings({ user }) {
   });
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetchTenant();
-  }, []);
-
-  const fetchTenant = async () => {
+  const fetchTenant = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`${API}/tenants/${user.tenant_id}`, {
@@ -51,7 +47,11 @@ export default function TenantProfileSettings({ user }) {
     } catch (error) {
       toast.error('Failed to fetch tenant details');
     }
-  };
+  }, [user.tenant_id]);
+
+  useEffect(() => {
+    fetchTenant();
+  }, [fetchTenant]);
 
   const updateProfile = async () => {
     setLoading(true);

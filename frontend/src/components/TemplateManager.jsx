@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,11 +26,7 @@ export default function TemplateManager({ user }) {
     footer_text: ''
   });
 
-  useEffect(() => {
-    fetchTemplates();
-  }, []);
-
-  const fetchTemplates = async () => {
+  const fetchTemplates = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`${API}/templates`, {
@@ -40,7 +36,11 @@ export default function TemplateManager({ user }) {
     } catch (error) {
       toast.error('Failed to fetch templates');
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchTemplates();
+  }, [fetchTemplates]);
 
   const createTemplate = async () => {
     if (!formData.name || !formData.body_text) {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,11 +37,7 @@ export default function UserManagement({ user }) {
   });
   const [permissions, setPermissions] = useState({});
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`${API}/users/tenant`, {
@@ -51,7 +47,11 @@ export default function UserManagement({ user }) {
     } catch (error) {
       toast.error('Failed to fetch users');
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const inviteUser = async () => {
     if (!formData.name || !formData.email) {

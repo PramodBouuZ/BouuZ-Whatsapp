@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,11 +20,7 @@ export default function MetaAPISettings({ user }) {
   const [isConfigured, setIsConfigured] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetchConfig();
-  }, []);
-
-  const fetchConfig = async () => {
+  const fetchConfig = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`${API}/meta/config`, {
@@ -41,7 +37,11 @@ export default function MetaAPISettings({ user }) {
     } catch (error) {
       console.error('Failed to fetch config');
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchConfig();
+  }, [fetchConfig]);
 
   const saveConfig = async () => {
     if (!config.phone_number_id || !config.business_account_id || !config.access_token) {

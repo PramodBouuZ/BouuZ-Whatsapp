@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,11 +21,7 @@ export default function ChatbotManager({ user }) {
     keywords: ''
   });
 
-  useEffect(() => {
-    fetchChatbots();
-  }, []);
-
-  const fetchChatbots = async () => {
+  const fetchChatbots = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`${API}/chatbots`, {
@@ -35,7 +31,11 @@ export default function ChatbotManager({ user }) {
     } catch (error) {
       toast.error('Failed to fetch chatbots');
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchChatbots();
+  }, [fetchChatbots]);
 
   const createChatbot = async () => {
     if (!formData.name || !formData.system_prompt) {

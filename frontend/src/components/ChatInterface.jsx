@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,21 +23,7 @@ export default function ChatInterface({ user }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const messagesEndRef = useRef(null);
 
-  useEffect(() => {
-    fetchConversations();
-  }, []);
-
-  useEffect(() => {
-    if (selectedConv) {
-      fetchMessages(selectedConv.id);
-    }
-  }, [selectedConv]);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  const fetchConversations = async () => {
+  const fetchConversations = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`${API}/conversations`, {
@@ -50,9 +36,13 @@ export default function ChatInterface({ user }) {
     } catch (error) {
       toast.error('Failed to fetch conversations');
     }
-  };
+  }, [selectedConv]);
 
-  const fetchMessages = async (conversationId) => {
+  useEffect(() => {
+    fetchConversations();
+  }, [fetchConversations]);
+
+  const fetchMessages = useCallback(async (conversationId) => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`${API}/conversations/${conversationId}/messages`, {
@@ -62,7 +52,17 @@ export default function ChatInterface({ user }) {
     } catch (error) {
       toast.error('Failed to fetch messages');
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (selectedConv) {
+      fetchMessages(selectedConv.id);
+    }
+  }, [selectedConv, fetchMessages]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const sendMessage = async () => {
     if (!input.trim() || !selectedConv) return;

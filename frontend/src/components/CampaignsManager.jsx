@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,13 +28,7 @@ export default function CampaignsManager({ user }) {
   });
   const [uploadStats, setUploadStats] = useState(null);
 
-  useEffect(() => {
-    fetchCampaigns();
-    fetchContacts();
-    fetchApprovedTemplates();
-  }, []);
-
-  const fetchCampaigns = async () => {
+  const fetchCampaigns = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`${API}/campaigns`, {
@@ -44,9 +38,9 @@ export default function CampaignsManager({ user }) {
     } catch (error) {
       toast.error('Failed to fetch campaigns');
     }
-  };
+  }, []);
 
-  const fetchContacts = async () => {
+  const fetchContacts = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`${API}/contacts`, {
@@ -56,9 +50,9 @@ export default function CampaignsManager({ user }) {
     } catch (error) {
       console.error('Failed to fetch contacts');
     }
-  };
+  }, []);
 
-  const fetchApprovedTemplates = async () => {
+  const fetchApprovedTemplates = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`${API}/templates/approved`, {
@@ -68,7 +62,13 @@ export default function CampaignsManager({ user }) {
     } catch (error) {
       console.error('Failed to fetch approved templates');
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchCampaigns();
+    fetchContacts();
+    fetchApprovedTemplates();
+  }, [fetchCampaigns, fetchContacts, fetchApprovedTemplates]);
 
   const handleTemplateSelect = (templateId) => {
     const template = approvedTemplates.find(t => t.id === templateId);

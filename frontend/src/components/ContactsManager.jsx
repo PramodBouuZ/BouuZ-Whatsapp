@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,11 +20,7 @@ export default function ContactsManager({ user }) {
     email: ''
   });
 
-  useEffect(() => {
-    fetchContacts();
-  }, []);
-
-  const fetchContacts = async () => {
+  const fetchContacts = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`${API}/contacts`, {
@@ -34,7 +30,11 @@ export default function ContactsManager({ user }) {
     } catch (error) {
       toast.error('Failed to fetch contacts');
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchContacts();
+  }, [fetchContacts]);
 
   const createContact = async () => {
     if (!formData.name || !formData.phone_number) {
