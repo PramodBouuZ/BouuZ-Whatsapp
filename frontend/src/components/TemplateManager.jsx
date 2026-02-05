@@ -177,7 +177,7 @@ export default function TemplateManager({ user }) {
                   rows={6}
                   data-testid="template-body-input"
                 />
-                <p className="text-xs text-muted-foreground">Use {{1}}, {{2}} for variables</p>
+                <p className="text-xs text-muted-foreground">Use {'{'}1{'}'}, {'{'}2{'}'} for variables</p>
               </div>
 
               <div className="space-y-2">
