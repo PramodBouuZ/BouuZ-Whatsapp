@@ -428,7 +428,7 @@ async def create_contact(phone_number: str, name: str, email: Optional[str] = No
     contact_dict = contact.model_dump()
     contact_dict['created_at'] = contact_dict['created_at'].isoformat()
     await db.contacts.insert_one(contact_dict)
-    return contact_dict
+    return serialize_doc(contact_dict)
 
 @api_router.get("/campaigns")
 async def get_campaigns(current_user: dict = Depends(get_current_user)):
