@@ -333,22 +333,18 @@ async def send_message(conversation_id: str, request: MessageRequest, current_us
     if request.use_ai:
         chatbot = await db.chatbots.find_one({"tenant_id": conversation["tenant_id"], "enabled": True}, {"_id": 0})
         if chatbot:
-            history = await db.messages.find({"conversation_id": conversation_id}, {"_id": 0}).sort("timestamp", 1).to_list(10)
-            messages = [{"role": msg["role"] if msg["role"] in ["user", "assistant"] else "user", "content": msg["content"]} for msg in history[-10:]]
-            
             try:
                 llm_client = LlmChat(
                     api_key=EMERGENT_LLM_KEY,
                     session_id=conversation_id,
                     system_message=chatbot["system_prompt"]
                 )
-                response = llm_client.chat.completions.create(
-                    model="gpt-5.2",
-                    messages=messages,
-                    max_tokens=500,
-                    temperature=0.7
+                
+                response = llm_client.send_message(
+                    message=request.content,
+                    model="gpt-5.2"
                 )
-                ai_response = response.choices[0].message.content
+                ai_response = response
                 
                 ai_message = Message(
                     conversation_id=conversation_id,
@@ -359,7 +355,8 @@ async def send_message(conversation_id: str, request: MessageRequest, current_us
                 ai_dict['timestamp'] = ai_dict['timestamp'].isoformat()
                 await db.messages.insert_one(ai_dict)
             except Exception as e:
-                ai_response = f"AI response error: {str(e)}"
+                logger.error(f"AI response error: {str(e)}")
+                ai_response = f"AI temporarily unavailable"
     
     await db.conversations.update_one(
         {"id": conversation_id},
