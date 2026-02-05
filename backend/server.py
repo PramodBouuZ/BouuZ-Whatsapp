@@ -14,7 +14,17 @@ import uuid
 from datetime import datetime, timezone, timedelta
 from passlib.context import CryptContext
 import jwt
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+try:
+    from emergentintegrations.llm.chat import LlmChat, UserMessage
+except ImportError:
+    class UserMessage:
+        def __init__(self, text: str):
+            self.text = text
+    class LlmChat:
+        def __init__(self, *args, **kwargs):
+            pass
+        async def send_message(self, *args, **kwargs):
+            return "AI response (fallback: emergentintegrations package not found)"
 import json
 import httpx
 from models import MetaAPIConfig, MessageTemplate, Permission, UserPermission, InviteUser
@@ -58,9 +68,13 @@ def serialize_doc(doc):
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-mongo_url = os.environ['MONGO_URL']
+mongo_url = os.environ.get('MONGO_URL')
+if not mongo_url:
+    logging.warning("MONGO_URL not set, falling back to localhost for development")
+    mongo_url = 'mongodb://localhost:27017'
+
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+db = client[os.environ.get('DB_NAME', 'bantconfirm')]
 
 app = FastAPI(title="BantConfirm WhatsApp Platform API")
 api_router = APIRouter(prefix="/api")
