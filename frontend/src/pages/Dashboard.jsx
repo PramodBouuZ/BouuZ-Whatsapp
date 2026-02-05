@@ -128,7 +128,7 @@ export default function Dashboard() {
           {activeTab === 'templates' && <TemplateManager user={user} />}
           {activeTab === 'analytics' && <AnalyticsDashboard user={user} />}
           {activeTab === 'users' && <UserManagement user={user} />}
-          {activeTab === 'settings' && <MetaAPISettings user={user} />}
+          {activeTab === 'settings' && <TenantProfileSettings user={user} />}
         </div>
       </main>
     </div>
