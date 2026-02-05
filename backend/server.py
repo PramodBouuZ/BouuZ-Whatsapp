@@ -14,7 +14,7 @@ import uuid
 from datetime import datetime, timezone, timedelta
 from passlib.context import CryptContext
 import jwt
-from emergentintegrations.llm.chat import LlmChat
+from emergentintegrations.llm.chat import LlmChat, UserMessage
 import json
 import httpx
 from models import MetaAPIConfig, MessageTemplate, Permission, UserPermission, InviteUser
