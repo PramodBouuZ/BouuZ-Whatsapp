@@ -32,7 +32,7 @@ SECRET_KEY = os.environ.get("JWT_SECRET", "your-secret-key-change-in-production"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 
-openai_client = OpenAI()
+openai_client = LlmChat()
 
 class Tenant(BaseModel):
     model_config = ConfigDict(extra="ignore")
