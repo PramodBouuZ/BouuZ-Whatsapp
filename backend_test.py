@@ -224,17 +224,12 @@ class WhatsAppPlatformTester:
             200
         )
         
-        # Create campaign
+        # Create campaign (fix parameter format)
         success, _ = self.run_test(
             "Create Campaign",
             "POST",
-            "campaigns",
-            200,
-            params={
-                "name": "Test Campaign",
-                "message_template": "Hello {{name}}, we have exciting updates for you!",
-                "target_contacts": []
-            }
+            "campaigns?name=Test Campaign&message_template=Hello {{name}}, we have exciting updates for you!&target_contacts=",
+            200
         )
         
         return success
