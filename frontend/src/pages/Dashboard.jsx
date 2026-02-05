@@ -125,7 +125,10 @@ export default function Dashboard() {
           {activeTab === 'chatbots' && <ChatbotManager user={user} />}
           {activeTab === 'contacts' && <ContactsManager user={user} />}
           {activeTab === 'campaigns' && <CampaignsManager user={user} />}
+          {activeTab === 'templates' && <TemplateManager user={user} />}
           {activeTab === 'analytics' && <AnalyticsDashboard user={user} />}
+          {activeTab === 'users' && <UserManagement user={user} />}
+          {activeTab === 'settings' && <MetaAPISettings user={user} />}
         </div>
       </main>
     </div>
