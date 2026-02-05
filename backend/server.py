@@ -299,12 +299,14 @@ async def send_message(conversation_id: str, request: MessageRequest, current_us
             messages = [{"role": msg["role"] if msg["role"] in ["user", "assistant"] else "user", "content": msg["content"]} for msg in history[-10:]]
             
             try:
-                response = openai_client.chat.completions.create(
+                llm_client = LlmChat(
+                    api_key=EMERGENT_LLM_KEY,
+                    session_id=conversation_id,
+                    system_message=chatbot["system_prompt"]
+                )
+                response = llm_client.chat.completions.create(
                     model="gpt-5.2",
-                    messages=[
-                        {"role": "system", "content": chatbot["system_prompt"]},
-                        *messages
-                    ],
+                    messages=messages,
                     max_tokens=500,
                     temperature=0.7
                 )
