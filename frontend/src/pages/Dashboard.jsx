@@ -10,7 +10,7 @@ import ChatbotManager from '@/components/ChatbotManager';
 import ContactsManager from '@/components/ContactsManager';
 import CampaignsManager from '@/components/CampaignsManager';
 import AnalyticsDashboard from '@/components/AnalyticsDashboard';
-import MetaAPISettings from '@/components/MetaAPISettings';
+import TenantProfileSettings from '@/components/TenantProfileSettings';
 import TemplateManager from '@/components/TemplateManager';
 import UserManagement from '@/components/UserManagement';
 
